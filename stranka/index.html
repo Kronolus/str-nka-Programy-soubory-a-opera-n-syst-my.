@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Programy, soubory a operační systémy — sbírka (taby)</title>
+
+  <style>
+    :root{
+      --bg:#07040a;
+      --panel:#0f0b14;
+      --accent1:#b57bff;
+      --accent2:#6f3cf0;
+      --muted:#aeb4d9;
+      --card:#0c0a10;
+      --glass: rgba(255,255,255,0.03);
+      --radius:14px;
+      --maxw:1200px;
+      --tab-height:56px;
+    }
+
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;
+    background:
+      radial-gradient(700px 400px at 10% 10%, rgba(111,60,240,0.12), transparent),
+      radial-gradient(600px 300px at 90% 90%, rgba(181,123,255,0.06), transparent),
+      var(--bg);
+    color:#e9e6fb;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  a{color:var(--accent1); text-decoration:none}
+  a.external::after{content:" ↗";font-size:0.85em;opacity:0.8}
+
+  /* fixed corner logo */
+  .site-logo{
+    position:fixed; left:16px; top:12px; width:64px; height:64px; z-index:80;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:12px; overflow:hidden; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.04); box-shadow:0 10px 30px rgba(3,2,6,0.6);
+  }
+  .site-logo img{width:100%; height:100%; object-fit:cover; display:block}
+
+  header.wrapper{
+    max-width:var(--maxw); margin:22px auto 12px; padding:12px 18px 18px; position:relative;
+    display:flex; align-items:center; gap:16px;
+  }
+  header h1{margin:0;font-size:20px;color:var(--accent1); letter-spacing:0.2px}
+  header p.lead{margin:0;color:var(--muted);font-size:13px}
+
+  /* Tablist */
+  .tabs{
+    max-width:var(--maxw); margin:12px auto; padding:0 18px; display:block;
+  }
+  .tablist{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    align-items:center;
+    padding:6px;
+  }
+
+  .tab-btn{
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.03);
+    color:var(--muted); padding:10px 14px; border-radius:12px; font-weight:700;
+    cursor:pointer; flex:0 0 auto;
+    transition:transform .15s ease, box-shadow .15s ease, color .12s ease;
+    line-height:1;
+  }
+  .tab-btn[aria-selected="true"]{
+    color:#ffffff; box-shadow:0 10px 30px rgba(111,60,240,0.12);
+    transform:translateY(-4px);
+    background:linear-gradient(180deg,var(--accent2),var(--accent1));
+  }
+  .tab-btn:focus{outline:3px solid rgba(181,123,255,0.18); outline-offset:3px}
+
+  /* panels container */
+  .panels{
+    max-width:var(--maxw); margin:18px auto; padding:0 18px 80px;
+  }
+  .panel{
+    display:none;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.03);
+    padding:18px;border-radius:14px; margin-bottom:18px;
+    box-shadow:0 12px 30px rgba(3,2,6,0.6);
+  }
+  .panel[data-visible="true"]{display:block}
+
+  .panel h2{color:var(--accent2); margin:0 0 8px}
+  .muted{color:var(--muted);font-size:13px;margin-bottom:8px;display:block}
+  p{line-height:1.55;margin:8px 0}
+  ul{margin:8px 0 0 18px}
+  code{background:rgba(255,255,255,0.03); padding:2px 8px;border-radius:6px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace}
+  .example{background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00)); padding:10px;border-radius:8px;border-left:4px solid var(--accent1); font-family: ui-monospace, Menlo, monospace}
+  .pull{background:linear-gradient(90deg, rgba(181,123,255,0.06), rgba(111,60,240,0.04)); padding:10px;border-radius:10px;border-left:4px solid var(--accent2); margin-top:12px}
+
+  .caption{font-size:13px;color:var(--muted); margin-top:6px}
+
+  /* accordion */
+  .accordion{margin-top:8px}
+  .acc-item{border-radius:10px;overflow:hidden;margin-bottom:8px;border:1px solid rgba(255,255,255,0.02)}
+  .acc-head{background:rgba(255,255,255,0.01);padding:10px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+  .acc-head h4{margin:0;font-size:15px;color:var(--accent1)}
+  .acc-body{max-height:0;overflow:hidden;padding:0 12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);transition:max-height .28s ease, padding .28s ease}
+  .acc-body.open{padding:12px;border-top:1px dashed rgba(255,255,255,0.02);max-height:1200px}
+
+  /* figure styles for images inside sections */
+  figure.section-img{margin:12px 0;border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.03); background:var(--card)}
+  figure.section-img img{display:block;width:100%;height:auto;max-height:420px;object-fit:cover}
+  figure.section-img figcaption{padding:8px;color:var(--muted);font-size:13px}
+
+  footer{opacity:0.95;color:var(--muted); text-align:center;padding:12px 0 60px}
+
+  /* responsiveness */
+  @media (max-width:780px){
+    header.wrapper{flex-direction:column; align-items:flex-start}
+    .tab-btn{padding:8px 10px}
+  }
+
+  /* print friendly */
+  @media print{
+    body{background:white;color:black}
+    .site-logo, .tablist{display:none}
+    .panel{box-shadow:none;border:none}
+  }
+</style>
+</head>
+<body>
+  <!-- logo -->
+  <a href="#top" class="site-logo" title="Domů (logo)">
+    <img src="logo.png" alt="Logo stránky" id="logo-img"
+         data-alts="logo.png,logo.webp,logo.jpg">
+  </a>
+
+  <header class="wrapper" id="top">
+
+    <div>
+      <h1>Programy, soubory a operační systémy</h1>
+      <p class="lead">Interaktivní sbírka — přepínej karty nahoře. Obrázky: <code>logo.png</code>, <code>OS.jpg</code>, <code>cloud.jpg</code>.</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="tabs" role="navigation" aria-label="Hlavní sekce">
+      <!-- tablist -->
+      <div class="tablist" role="tablist" aria-label="Sekce dokumentu">
+        <!-- create a tab button for each major section - keep order identical s původním textem -->
+        <button class="tab-btn" role="tab" aria-selected="true" aria-controls="panel-soubor" id="tab-soubor">Soubor</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-adresare" id="tab-adresare">Adresáře</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-programy" id="tab-programy">Programy</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-os" id="tab-os">Operační systémy</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-ovladace" id="tab-ovladace">Ovladače</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-aplikace" id="tab-aplikace">Aplikace</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-instalace" id="tab-instalace">Instalace</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-cloud" id="tab-cloud">Cloud</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-zalohovani" id="tab-zalohovani">Zálohování</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-licence" id="tab-licence">Licence</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-opensource" id="tab-opensource">Open Source</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-softlaw" id="tab-softlaw">Autorské právo</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-emulace" id="tab-emulace">Emulace</button>
+      </div>
+    </div>
+
+    <!-- panels -->
+    <div class="panels">
+      <!-- Soubor -->
+      <section id="panel-soubor" class="panel" role="tabpanel" aria-labelledby="tab-soubor" data-visible="true" tabindex="0">
+        <h2>Soubor (file)</h2>
+        <p>
+        <a href="https://cs.wikipedia.org/wiki/Soubor_(informatika)" target="_blank">Soubor</a>
+        je základní jednotka dat uložená v počítači.
+        Každý soubor má název a
+        <a href="https://cs.wikipedia.org/wiki/Přípona_souboru" target="_blank">příponu</a>,
+        která určuje jeho typ.
+        </p>
+
+        <p>
+        Mezi běžné typy souborů patří
+        <a href="https://cs.wikipedia.org/wiki/Textový_soubor" target="_blank">textové soubory</a>
+        (např.
+        <a href="https://cs.wikipedia.org/wiki/TXT" target="_blank">.txt</a>,
+        <a href="https://developer.mozilla.org/cs/docs/Web/HTML" target="_blank">.html</a>),
+        <a href="https://cs.wikipedia.org/wiki/Obrazový_formát" target="_blank">obrazové soubory</a>
+        (např.
+        <a href="https://cs.wikipedia.org/wiki/JPEG" target="_blank">.jpg</a>,
+        <a href="https://cs.wikipedia.org/wiki/PNG" target="_blank">.png</a>)
+        a
+        <a href="https://cs.wikipedia.org/wiki/Multimediální_soubor" target="_blank">multimediální soubory</a>
+        (např.
+        <a href="https://cs.wikipedia.org/wiki/MP3" target="_blank">.mp3</a>,
+        <a href="https://cs.wikipedia.org/wiki/MP4" target="_blank">.mp4</a>).
+        </p>
+
+        <p>
+        Soubory se ukládají na
+        <a href="https://cs.wikipedia.org/wiki/Pevný_disk" target="_blank">pevný disk</a>,
+        <a href="https://cs.wikipedia.org/wiki/SSD" target="_blank">SSD</a>
+        nebo do
+        <a href="https://cs.wikipedia.org/wiki/Cloud_computing" target="_blank">cloudu</a>,
+        například
+        <a href="https://www.google.com/drive/" target="_blank">Google Disk</a>
+        nebo
+        <a href="https://onedrive.live.com" target="_blank">OneDrive</a>.
+        </p>
+      </section>    
+
+      <!-- Adresáře -->
+      <section id="panel-adresare" class="panel" role="tabpanel" aria-labelledby="tab-adresare" data-visible="false" tabindex="0">
+        <h2>Adresáře (directories, folders)</h2>
+        <span class="muted">Struktura, kořen, podadresáře</span>
+        <p>K přehlednější práci se soubory slouží systém adresářů či složek (directories, folders). Adresáře tvoří na disku typicky hierarchickou strukturu (tree - strom); základem je tzv. kořenový adresář (root) označený symbolem „/“ (Unix), nebo „\\“ (Windows). Každý adresář může obsahovat soubory i podadresáře (subdirectories).</p>
+
+        <p>Cesta (path) vyjadřuje umístění souboru vždy směrem od nejvyššího adresáře: <span class="example"><code>C:\XAMPP\mysql\bin\mysql.exe</code></span>. Pro operace se soubory využíváme někdy zástupné znaky (wildcards):</p>
+        <ul>
+          <li>symbol <code>*</code> nahrazuje v názvu libovolný počet znaků (např. <code>*.*</code>);</li>
+          <li>symbol <code>?</code> nahrazuje jeden libovolný znak (např. <code>s?s.txt</code>).</li>
+        </ul>
+
+        <p class="caption">Tip: pro synchronizaci a zálohy v Unix-like systémech se často používá nástroj <code>rsync</code>.</p>
+      </section>
+
+      <!-- Programy -->
+      <section id="panel-programy" class="panel" role="tabpanel" aria-labelledby="tab-programy" data-visible="false" tabindex="0">
+        <h2>Programové soubory</h2>
+        <p>
+        Program je <a href="https://cs.wikipedia.org/wiki/Software" target="_blank">software</a>,
+        tedy soubor instrukcí, které říkají počítači, co má dělat.
+        Programy mohou být
+        <a href="https://cs.wikipedia.org/wiki/Aplikační_software" target="_blank">aplikační</a>
+        nebo
+        <a href="https://cs.wikipedia.org/wiki/Systémový_software" target="_blank">systémové</a>.
+        </p>
+
+        <p>
+        Mezi běžné programy patří například
+        <a href="https://www.microsoft.com/microsoft-365" target="_blank">Microsoft Word</a>,
+        <a href="https://www.libreoffice.org" target="_blank">LibreOffice</a>,
+        <a href="https://www.mozilla.org/firefox/" target="_blank">Mozilla Firefox</a>
+        nebo
+        <a href="https://www.google.com/chrome/" target="_blank">Google Chrome</a>.
+        </p>
+
+        <p>
+        Programy jsou vytvářeny pomocí
+        <a href="https://cs.wikipedia.org/wiki/Programovací_jazyk" target="_blank">programovacích jazyků</a>,
+        například
+        <a href="https://www.python.org" target="_blank">Python</a>,
+        <a href="https://www.java.com" target="_blank">Java</a>
+        nebo
+        <a href="https://developer.mozilla.org/cs/docs/Web/JavaScript" target="_blank">JavaScript</a>.
+        </p>
+      </section>  
+
+      <!-- Operační systémy (obsah + OS.jpg) -->
+      <section id="panel-os" class="panel" role="tabpanel" aria-labelledby="tab-os" data-visible="false" tabindex="0">
+        <h2>Operační systémy (OS)</h2>
+        <span class="muted">Jádro, API, GUI/CLI</span>
+
+        <figure class="section-img">
+          <!-- standardní img + data-alts pro fallback; script zkusí png->webp atd. -->
+          <img src="OS.jpg" alt="Ilustrace operačních systémů" id="os-img" data-alts="OS.jpg,OS.png,OS.webp">
+          <figcaption>Ilustrace: operační systémy — Unix, Linux, Windows a další.</figcaption>
+        </figure>
+
+        <p>
+        <a href="https://cs.wikipedia.org/wiki/Operační_systém" target="_blank">Operační systém</a>
+        je základní program, který řídí hardware počítače a umožňuje běh ostatních programů.
+        </p>
+
+        <p>
+        Mezi nejpoužívanější operační systémy patří
+        <a href="https://www.microsoft.com/windows" target="_blank">Microsoft Windows</a>,
+        <a href="https://www.apple.com/macos/" target="_blank">macOS</a>
+        a
+        <a href="https://www.linux.org" target="_blank">Linux</a>.
+        Pro mobilní zařízení se používá
+        <a href="https://www.android.com" target="_blank">Android</a>
+        a
+        <a href="https://www.apple.com/ios/" target="_blank">iOS</a>.
+        </p>
+
+        <p>
+        Operační systémy mohou být
+        <a href="https://cs.wikipedia.org/wiki/Open-source" target="_blank">open-source</a>
+        nebo komerční a jsou šířeny pod různými
+        <a href="https://cs.wikipedia.org/wiki/Softwarová_licence" target="_blank">licencemi</a>,
+        například
+        <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">GPL</a>
+        nebo
+        <a href="https://opensource.org/licenses/MIT" target="_blank">MIT</a>.
+        </p>
+
+      </section>
+
+      <!-- Ovladače -->
+      <section id="panel-ovladace" class="panel" role="tabpanel" aria-labelledby="tab-ovladace" data-visible="false" tabindex="0">
+        <h2>Ovladače, firmware a utility</h2>
+        <span class="muted">Device drivers, firmware, nástroje</span>
+
+        <h3>Ovladače zařízení (device drivers)</h3>
+        <p>Speciální programy, které zajišťují komunikaci OS s určitým technickým vybavením. Bez potřebného ovladače nemůže zařízení správně fungovat. Standardní ovladače pro běžná zařízení, jakými jsou flash disk, myš, klávesnice nebo digitální fotoaparáty, bývají součástí moderních OS. Instalaci zařízení ve Windows usnadňuje standard Plug and Play (PnP - „připoj a hrej“), který zajistí automatickou detekci nově připojeného hardware a případně i automatické vyhledání potřebného ovladače. Není-li driver nalezen přímo v OS, musí být použit externí instalátor ovladače z disku dodaného se zařízením (např. z instalačního CD k tiskárně), nebo stažený z internetových stránek, nejlépe přímo od výrobce. Nevhodně zvolený ovladač může v krajním případě způsobit nefunkčnost zařízení, někdy i celého OS.</p>
+
+        <h3>Firmware</h3>
+        <p>Programové vybavení, které slouží pro řízení nějakého vestavěného systému (embedded system). Firmware řídí například kalkulačky, počítačové komponenty (pevný disk, router…), mobilní telefon, digitální fotoaparát atd. Dříve byla aktualizace firmwaru realizována nahrazením paměťového média obsahujícího firmware (např. výměna ROM paměti), dnes může být novější verze firmware přepsána díky používaným flash pamětem. Základním firmwarem v počítači je BIOS (Basic Output-Input System), který zajišťuje především start počítače a umožňuje konfiguraci základní desky i připojeného hardware.</p>
+
+        <h3>Utility</h3>
+        <p>Jsou menší pomocné programy, které umožňují vykonávat servisní operace potřebné k fungování počítače. Patří k nim komprimační programy, diagnostické a testovací programy, utility pro kontrolu a optimalizaci operačního systému, různé konverzní (převodní) programy, které umí přehledně zobrazit obrázky, převést je z jednoho formátu na jiný atd. Řada utilit je integrální součástí OS. Příkladem může být Správce úloh ve Windows (Task Manager), který umožňuje nejen správu spuštěných programů a služeb, ale i sledování využití systémových zdrojů (procesoru, paměti). Dalšími užitečnými utilitami jsou nástroje pro defragmentaci (defrag) nebo kontrolu disku (chkdsk). Některé utility lze spouštět z příkazového řádku (ping, ipconfig apod.).</p>
+      </section>
+
+      <!-- Aplikace -->
+      <section id="panel-aplikace" class="panel" role="tabpanel" aria-labelledby="tab-aplikace" data-visible="false" tabindex="0">
+        <h2>Aplikační software</h2>
+        <span class="muted">Skupiny aplikací</span>
+        <p>Aplikace jsou uživatelské programy určené pro jeden nebo více specifických účelů. Pro spouštění aplikací je nezbytná přítomnost základního software - operačního systému.</p>
+
+        <h3>Základní skupiny aplikací</h3>
+        <p><strong>Kancelářské balíky.</strong> Symbolický „balík“ programů obvykle tvoří textový procesor, tabulkový procesor, nástroj na tvorbu prezentací, databázový systém, někdy i groupwarové nástroje (systémy organizování času, zajišťování schůzek), grafické editory apod. Vedle komerčních Microsoft Office či Apple iWork existují také balíky OpenOffice nebo WPS Office, dostupné zdarma a pro řadu platforem.</p>
+
+        <p><strong>Grafické aplikace.</strong> Oblast grafiky je velmi široká; grafické programy umožňují vytvoření grafických dokumentů přímo v počítači, skenování papírových předloh i zachycení obrazu digitálním fotoaparátem. Dominantní postavení v této oblasti zaujímá profesionální software firmy Adobe (např. Adobe Photoshop, Adobe Illustrator aj.). Mezi oblíbené multiplatformní opensource grafické aplikace patří např. rastrový editor GIMP nebo vektorový Inkscape. Svébytné oblasti počítačové grafiky tvoří programy pro tvorbu animací, rozsáhlé konstrukční systémy CAD (Computer Aided Design) nebo programy DTP (Desktop Publishing) určené pro tvorbu tiskovin.</p>
+
+        <p><strong>Multimediální programy.</strong> Umožňují vytváření, zpracování a prezentaci multimediálních, tedy především audiovizuálních dat na počítači. Kromě nejrůznějších multimediálních přehrávačů zde můžeme zařadit řadu programů pro editaci digitálního zvuku nebo videa, programy pro tvorbu multimediálních prezentací, výukové programy, ale také rozsáhlou oblast počítačových her.</p>
+
+        <p><strong>Programy pro komunikaci v počítačové síti.</strong> Slouží pro správu počítačových sítí, vzdálené řízení počítače, přenos a přístup ke vzdáleným souborům a vzdálený tisk, pro připojení vnitřní podnikové sítě (intranet) na síť celosvětovou (Internet) přes poskytovatele Internetu. K základním uživatelským (klientským) aplikacím patří webové prohlížeče, klienty elektronické pošty a groupware (software pro skupinovou práci), prostředky online komunikace (IM - Instant Messaging) a jiné.</p>
+
+        <p><strong>Informační a databázové systémy.</strong> Informační systémy (IS - information systems) představují komplexní programové vybavení určité instituce nebo firmy. Základem IS jsou obvykle tzv. datové sklady (data warehouse) založené na databázových systémech. Podnikové informační systémy bývají označovány zkratkou ERP (Enterprise Resource Planning) a jsou tvořeny celou řadou dílčích programových modulů (např. moduly pro výrobu, logistiku, správu majetku, účetnictví ...) K lídrům v oblasti informačních i databázových systémů patří velké firmy jako Oracle, Microsoft, IBM, SAP. Kromě komplexních IS jsou vyvíjeny mnohé specializované aplikace pro podporu výrobních procesů, ekonomických transakcí a nejrůznějších jiných pracovních činností.</p>
+
+        <p><strong>Malware a antivirové programy.</strong> Zatímco malware je počítačový program určený ke vniknutí nebo poškození počítačového systému, cílem antivirových programů (např. AVG, AVAST, ESET, Kaspersky Antivirus atd.) je chránit počítačové systémy před tímto nežádoucím softwarem.</p>
+
+        <p><strong>Integrovaná vývojová prostředí.</strong> Obvykle jsou označována zkratkou IDE (Integrated Development Environment) a používají je programátoři k vývoji aplikací. Tradičně je tvoří editor s různými pomůckami pro psaní programového kódu, ladicí prostředky, překladače a další nástroje zefektivňující práci vývojářů.</p>
+      </section>
+
+      <!-- Instalace -->
+      <section id="panel-instalace" class="panel" role="tabpanel" aria-labelledby="tab-instalace" data-visible="false" tabindex="0">
+        <h2>Instalace programů</h2>
+        <span class="muted">Instalace, odinstalace, lokalizace, kompatibilita</span>
+
+        <p>Instalace programu. Program, který si koupíme, dostaneme na CD/DVD disku, nebo si ho stáhneme z Internetu. Po vložení instalačního CD/DVD disku se většinou okamžitě spustí instalační program (díky souboru autorun.inf), v případě softwaru staženého z Internetu musíme instalační program spustit sami (ve Windows nejčastěji poklepáním na soubory install.exe či setup.exe). Průvodce instalací (wizzard) si často vyžádá sériové číslo a souhlas s licenčními podmínkami, zeptá se, kam (do jaké složky na disku) se má program uložit a kam se má umístit zástupce programu, případně žádá další informace. Potom instalační program nahraje všechny soubory, ze kterých se program skládá, na pevný disk počítače, provede nutnou konfiguraci (v systémovém registru Windows, konfiguračních souborech) a nakonec vytvoří zástupce programu pro jeho snadné spuštění. K instalaci většiny programů je nutné mít práva správce.</p>
+
+        <p>Odinstalace programu. Úplné odebrání programu bývá paradoxně často složitější, zvláště v systémech Windows. Při instalaci si program nahraje své komponenty do mnoha složek včetně systémových, sdílí některé soubory s jinými programy (dynamické knihovny DLL), vytvoří záznamy v tzv. registru, při svém běhu vytváří pomocné soubory. Program, zajišťující odinstalování aplikace, často neví přesně, kde všude jsou programové soubory uložené a všechny je nesmaže. V řadě případů tak dochází k hromadění zbytečných a nepoužívaných souborů. Pro jejich odstranění lze používat některé speciální utility – např. RegCleaner (program pro čištění registrů). Při podobných operacích je však nutné postupovat velmi obezřetně, aby nedošlo k odstranění některé důležité součásti systému nebo používaného programu! V linuxových systémech je lépe vyřešeno oddělení systémových a uživatelských souborů, úplné odstranění nepotřebného programu je proto pravděpodobnější.</p>
+
+        <p>Lokalizace. Lokalizace je překlad programu, v našem případě do češtiny. Většina významných softwarových firem pochází z anglicky mluvících zemí a originály programů tedy existují v angličtině. Dnes je však zcela běžné, že tyto firmy mají místní zastoupení, která zajišťují prodej programů, ale také je před prodejem lokalizují - převedou do češtiny. Lokalizace je drahá a časově náročná činnost, protože se musí přeložit nejen volby nabídek a obsah dialogových oken, ale také nápověda k programu a návod k programu (manuál), případně vytvořit dělicí slovník pro české dělení slov a český korektor pravopisu.</p>
+
+        <p>Platforma a kompatibilita. V souvislosti s určitým typem OS i typem procesoru používáme pojem platforma - např. Windows, Linux, OS X. Používaný program musí být určen pro operační systém, který je na počítači nainstalován; pod jiným systémem většinou nepracuje (např. program určený pro MS Windows nebude pracovat pod Linuxem a naopak). Mnoho programů, zvláště z oblasti svobodného software (free software), má proto verze určené pro několik operačních systémů – jsou multiplatformní. Problémy se spuštěním programu však mohou nastat i na jedné platformě v souvislosti s různými verzemi OS i rozdíly mezi 32bitovými a 64bitovými systémy (například nový program určený pro MS Windows může spolehlivě fungovat v novějších verzích Windows, ale nemusí pracovat pod starší verzí stejného OS). Při pořizování programu si proto vždy musíme ověřit, zda je kompatibilní (ve funkční shodě) s námi používaným operačním systémem. V nových systémech Windows je v případě problémů možné využít nastavení na kartě Kompatibilita, která je součástí panelu Vlastnosti pro zástupce dané aplikace.</p>
+
+        <p>Verze programů. U počítačových programů je důležitá jeho verze, která se označuje číslem za názvem programu. Nový program může být například označen jako verze 1.0. Některé dodatečně zjištěné dílčí nedostatky nebo bezpečnostní problémy řeší aktualizace programu (dnes nejčastěji přes Internet), update. Aktualizace jsou zakázníkům, kteří si zakoupili určitou verzi programu, obvykle poskytovány bezplatně. Pro přehlednost jsou označovány buď datem vydání, nebo symbolickým číselným vyjádřením podverze – např. 1.1 nebo 1.23 apod. Povýšení na novou verzi (např. 2.0), upgrade, přináší významnější změny ve vývoji programu a v případě komerčního software je třeba vyšší verzi znovu zaplatit. Bývá pravidlem, že nové verze mají nové funkce a lepší ovládání, ale také vyšší nároky na výkon počítače. Před provedením upgrade je tedy nutné zjistit doporučenou (případně minimální) konfiguraci počítače, aby bylo možné program na daném počítači možné vůbec používat. Opačný postup, tedy použití nižší verze programu (např. kvůli nekompatibilitě s instalovaných OS nebo nedostatečnou konfigurací počítače), se nazývá downgrade.</p>
+
+        <p>
+          Registrace programu je zaevidování jeho uživatele do databáze výrobce programu.
+          Registrace je nepovinná a přináší většinou několik výhod:
+        </p>
+
+        <ul>
+          <li>nárok na upgrade programu za sníženou cenu; uživatel se často včas dozví o časově omezených nabídkách výhodného nákupu upgradu nebo dalších programů od stejné firmy;</li>
+          <li>někteří výrobci programů posílají svým registrovaným uživatelům materiály (časopisy, prospekty), kde se dozvíte zkušenosti jiných uživatelů s programem, bývají zde informace o nových verzích programu, případně o vzniklých doplňcích daného programu;</li>
+          <li>u některých programů po registraci vzniká nárok na využití zákaznické linky v případě potíží s programem.</li>
+        </ul>
+
+      </section>
+
+      <!-- Cloud (obsah + cloud.jpg) -->
+      <section id="panel-cloud" class="panel" role="tabpanel" aria-labelledby="tab-cloud" data-visible="false" tabindex="0">
+        <h2>Cloudová řešení (Cloud computing)</h2>
+        <span class="muted">Model poskytování výpočetních služeb přes síť</span>
+
+        <figure class="section-img">
+          <img src="cloud.jpg" alt="Ilustrace cloudových služeb" id="cloud-img" data-alts="cloud.jpg,cloud.png,cloud.webp">
+          <figcaption>Ilustrace: cloudové služby a datová centra.</figcaption>
+        </figure>
+
+        <p><strong>Cloud computing</strong> je nový výpočetní model založený na poskytování služeb a programů uložených na internetových serverech, k nimž mohou uživatelé přistupovat pomocí klientských aplikací (nejčastěji webového prohlížeče) a používat je prakticky odkudkoliv. Uživatelé nemusí provozovat vlastní infrastrukturu — vše zajišťuje poskytovatel cloudu.</p>
+
+        <h3>Veřejný, privátní a hybridní cloud</h3>
+        <p><strong>Veřejný cloud</strong> je určen pro velké nebo neomezené množství uživatelů (příklady: Google Workspace, Office 365, Dropbox, OneDrive).<br>
+           <strong>Privátní cloud</strong> je provozován pro omezenou skupinu uživatelů (např. intra-firemní řešení).<br>
+           <strong>Hybridní cloud</strong> kombinuje veřejné a privátní modely podle potřeb firmy (část dat v privátním cloudu, část v veřejném).</p>
+
+        <h3>Nejobvyklejší cloudové služby — distribuční modely</h3>
+        <div class="accordion">
+          <div class="acc-item">
+            <div class="acc-head"><h4>IaaS — Infrastructure as a Service</h4><span>virtuální infrastruktura</span></div>
+            <div class="acc-body">
+              <p>Poskytovatel nabízí kompletní infrastrukturu (virtuální servery, sítě, úložiště). Klient spravuje OS, aplikace a data. Příklady: Amazon EC2, Rackspace.</p>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <div class="acc-head"><h4>PaaS — Platform as a Service</h4><span>platforma pro vývoj a běh</span></div>
+            <div class="acc-body">
+              <p>Poskytuje kompletní platformu pro vývoj a nasazení aplikací (runtime, knihovny, API). Programátor se stará jen o kód. Příklady: Google App Engine, Heroku.</p>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <div class="acc-head"><h4>SaaS — Software as a Service</h4><span>aplikace přes internet</span></div>
+            <div class="acc-body">
+              <p>Hotové aplikace dostupné přes web (uživatel používá aplikaci bez starostí o infrastrukturu). Příklady: Google Apps, Office 365, cloudové e-mail služby, webové úložiště.</p>
+            </div>
+          </div>
+        </div>
+
+        <h3>Typické příklady cloudových služeb</h3>
+        <p>Mezi běžně používané internetové služby patří vyhledávače (Google, Seznam), webmail (Gmail, Hotmail), cloudová úložiště (OneDrive, Google Drive, Dropbox), služby pro sdílení a synchronizaci (Dropbox, OneDrive), aplikace Office 365, Google Apps atd. Pro vývoj aplikací se používají platformy jako Heroku nebo Force.com.</p>
+
+        <h3>Výhody a nevýhody</h3>
+        <table style="width:100%;border-collapse:collapse;margin-top:8px">
+          <thead><tr><th style="padding:8px;border:1px solid rgba(255,255,255,0.03);text-align:left;background:rgba(255,255,255,0.02);color:var(--accent1)">Výhody</th><th style="padding:8px;border:1px solid rgba(255,255,255,0.03);text-align:left;background:rgba(255,255,255,0.02);color:var(--accent1)">Nevýhody</th></tr></thead>
+          <tbody>
+            <tr><td style="padding:8px;border:1px solid rgba(255,255,255,0.03)">Není nutné udržovat vlastní HW a SW; škálovatelnost; přístup odkudkoliv.</td><td style="padding:8px;border:1px solid rgba(255,255,255,0.03)">Závislost na poskytovateli; riziko výpadku; nutný spolehlivý internet.</td></tr>
+            <tr><td style="padding:8px;border:1px solid rgba(255,255,255,0.03)">Efektivní řízení nákladů, rychlé nasazení služeb, snížení operační zátěže správy.</td><td style="padding:8px;border:1px solid rgba(255,255,255,0.03)">Bezpečnost a ochrana dat — nutnost důvěry v poskytovatele; omezené možnosti přizpůsobení.</td></tr>
+          </tbody>
+        </table>
+
+        <p class="pull">Příklady poskytovatelů a služeb: Amazon EC2, Rackspace Cloud, Microsoft Azure, Google App Engine, Heroku, Google Drive, Dropbox, OneDrive, Office 365.</p>
+      </section>
+
+      <!-- Zálohování -->
+      <section id="panel-zalohovani" class="panel" role="tabpanel" aria-labelledby="tab-zalohovani" data-visible="false" tabindex="0">
+        <h2>Zálohování programů a dat</h2>
+        <span class="muted">Záloha, prostředky, typy, zásady</span>
+        <p><strong>Záloha (backup)</strong> je kopie dat uložená na jiném datovém nosiči nebo místě. Slouží k obnově dat v případě ztráty, poškození, selhání nebo jiného problému. Zálohování může být prováděno pravidelně nebo nepravidelně, podle potřeb (domácnosti, firmy).</p>
+
+        <h3>Prostředky zálohování</h3>
+        <ul>
+          <li><strong>Speciální zálohovací programy</strong> — usnadňují plánování, automatizaci a obnovu (např. Acronis, Cobian, jiné).</li>
+          <li><strong>Speciální zařízení</strong> — externí disky, NAS (síťové úložiště), páskové jednotky.</li>
+          <li><strong>Komplexní zálohovací systémy</strong> — pro servery a datová centra (clustery, páskové knihovny, profesionální úložiště).</li>
+        </ul>
+
+        <h3>Typy záloh podle strategie</h3>
+        <ul>
+          <li><strong>Úplná záloha (full)</strong> — kompletní kopie všech dat; jednoduchá obnova, ale velké nároky na místo a čas.</li>
+          <li><strong>Přírůstková záloha (incremental)</strong> — zálohují se pouze změny od poslední zálohy; šetří místo, ale obnova může vyžadovat víc kroků.</li>
+          <li><strong>Diferenciální záloha (differential)</strong> — zálohují se změny od poslední úplné zálohy; obnova je rychlejší než u přírůstkové, ale zálohy narůstají rychleji.</li>
+          <li><strong>Zrcadlová záloha / replikace</strong> — zrcadlení dat v reálném čase nebo často; dobré pro okamžitou dostupnost, ale riziko replikace chyb.</li>
+        </ul>
+
+        <h3>Typy zálohovacích médií</h3>
+        <ul>
+          <li>Pevné disky (HDD/SSD) — externí i interní.</li>
+          <li>Optická média (CD/DVD) — historicky běžné, dnes omezené kapacity.</li>
+          <li>Páskové jednotky (tape) — používané v enterprise zálohách.</li>
+          <li>Cloudové úložiště — off-site zálohy u poskytovatele (rychlejší dostupnost, závislost na síti).</li>
+        </ul>
+
+        <h3>Zásady zálohování</h3>
+        <ul>
+          <li>Plánuj pravidelnost (např. denní, týdenní, měsíční) podle důležitosti dat.</li>
+          <li>Testuj obnovu — záloha je užitečná jen pokud umíš data skutečně obnovit.</li>
+          <li>Ukládej více verzí (verzování) — možnost vrátit se k dřívějším datům.</li>
+          <li>Měj off-site kopii (cloud nebo jiné umístění) pro případ fyzické ztráty.</li>
+          <li>Šifruj citlivé zálohy a chraň přístup hesly/klíči.</li>
+        </ul>
+
+        <div class="accordion">
+          <div class="acc-item">
+            <div class="acc-head"><h4>Záloha adresářů a souborů</h4><span>kopírování důležitých dat</span></div>
+            <div class="acc-body">
+              <p>Nejjednodušší metoda: kopírování vybraných adresářů a souborů na externí disk nebo do cloudu. Lze použít plánovače nebo synchronizační nástroje (např. rsync, robocopy, cloud sync).</p>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <div class="acc-head"><h4>Obraz disku (disk image)</h4><span>image = kompletní snapshot</span></div>
+            <div class="acc-body">
+              <p>Vytvoří přesnou kopii disku (včetně boot sektoru, oddílů, OS a nainstalovaných programů). Hodí se pro obnovu po havárii nebo migraci na nový disk. Nástroje: Acronis, Clonezilla, Macrium Reflect apod.</p>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <div class="acc-head"><h4>Záloha systému</h4><span>obnova funkčního OS</span></div>
+            <div class="acc-body">
+              <p>Zahrnuje systémové soubory, konfigurace a často i aplikace. Cílem je obnovit provozuschopný systém bez nutnosti reinstalace všech aplikací ručně.</p>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <div class="acc-head"><h4>Zálohování v sítích / serverech</h4><span>pokročilé strategie</span></div>
+            <div class="acc-body">
+              <p>V enterprise nasazeních se používají centralizované zálohovací servery, deduplikace, šifrování, páskové knihovny, snapshoty a plánování, aby byla zajištěna RTO/RPO (doba obnovy / bod obnovy).</p>
+            </div>
+          </div>
+        </div>
+
+        <p class="pull">Tip: Kombinuj strategie — např. denní přírůstkové zálohy + týdenní úplná záloha + off-site kopie v cloudu. Pravidelně ověřuj integritu záloh a plán obnovy.</p>
+      </section>
+
+      <!-- Licence -->
+      <section id="panel-licence" class="panel" role="tabpanel" aria-labelledby="tab-licence" data-visible="false" tabindex="0">
+        <h2>Softwarové licence</h2>
+        <span class="muted">Komerční, free, open</span>
+
+        <p>Uživatel nemůže koupit program jako celek se všemi právy k němu, ale může získat pouze licenci (oprávnění) k jeho užívání. Z toho plyne, že nesmí žádným způsobem upravovat toto dílo, pokud k tomu autor nedá svůj výslovný souhlas. Licence je většinou nepřenosná, a proto není možné tuto licenci někomu dalšímu prodat nebo darovat.</p>
+
+        <p><strong>Multilicence.</strong> Při koupi programu běžně získává uživatel oprávnění provozovat program na jednom počítači. V případech hromadného využití programu (firmy, školy ...) stačí koupit jedno balení programu a k němu vícenásobnou licenci pro další počítače, která bývá cenově výhodnější variantou.</p>
+
+        <p><strong>Komerční software.</strong> Často se používá rovněž označení proprietární software nebo také software s uzavřeným kódem (closed source). Jeho autor upravuje licencí (typicky EULA - End-User-License-Agreement) či jiným způsobem možnosti jeho používání. K takovému software nejsou zpravidla k dispozici volně zdrojové kódy či v nich nelze svobodně dělat úpravy a výsledné dílo distribuovat. Je šířen za úplatu a bývá omezen počet instalací, přenositelnost licence či právo modifikace produktu.</p>
+
+        <p><strong>OEM (Original Equipment Manufacturer = původní výrobce zařízení).</strong> Touto zkratkou se označují výrobky, které jsou určeny k zabudování jako komponenty (součásti) do jiných zařízení. Jedná se například o programy, které jsou nabízeny pouze současně s hardware za sníženou cenu.</p>
+
+        <p><strong>Demoverze a zkušební verze programů.</strong> Demoverze jsou „ostré“ programy, které mají zablokované některé funkce, často ukládání souboru na disk a tisk. Dodávají se zdarma, nebo za malý poplatek. V demoverzi je možné vyzkoušet funkčnost programu před jeho koupí. Zkušební (trial) verze většinou umožňují plnohodnotnou práci včetně ukládání i tisku, ale jen po určitou dobu. Po uplynutí této doby program nelze spustit ani znovu nainstalovat.</p>
+
+        <p><strong>Shareware.</strong> S programem může uživatel pracovat a po určité době je povinnen zaslat jeho autorovi uvedený poplatek. Poté smí program legálně užívat a autor k němu často pošle stručný manuál, případně i novou verzi programu.</p>
+
+        <p><strong>Freeware.</strong> Doslova lze název této skupiny programů přeložit jako volné zboží. Program je možné používat a rozšiřovat zdarma, požaduje se pouze dodržování autorských práv. Nesmí se zahrnovat do komerčně šířených programů a nesmí být změněn.</p>
+
+        <p><strong>PUBLIC DOMAIN</strong> Je to rozsáhlá oblast programů k volnému užití. Tyto programy lze používat, volně šířit i upravovat. Autoři se vzdávají některých svých práv k programu a nechají uživatele s ním nakládat podle libosti.</p>
+      </section>
+
+      <!-- Open Source -->
+      <section id="panel-opensource" class="panel" role="tabpanel" aria-labelledby="tab-opensource" data-visible="false" tabindex="0">
+        <h2>Svobodný software a GNU/Linux</h2>
+        <span class="muted">Open Source, GPL</span>
+
+        <p>V současnosti vystupuje do popředí tzv. svobodný software (free software, nezaměňovat s freeware) šířený většinou pod licencí Open Source (nejčastěji GPL). Ten se stává alternativou pro často finančně náročné komerční programy.</p>
+
+        <p>Myšlenku svobodného softwaru formuloval Richard M. Stallman. Projekt GNU (GNU is Not Unix) vytvořil mnoho komponent; jádro Linux napsal Linus Torvalds v roce 1991. Kombinací GNU a jádra Linux vznikl systém GNU/Linux, dnes široce používaný v různých distribucích.</p>
+
+        <p><strong>Open Source a GPL</strong> — Open Source znamená otevřený zdroj: kód je distribuován spolu se softwarem, může být studován, upravován a znovu šířen. GPL (General Public Licence) definuje podmínky šíření a zajišťuje, že odvozená díla zůstávají otevřená.</p>
+      </section>
+
+      <!-- Soft law -->
+      <section id="panel-softlaw" class="panel" role="tabpanel" aria-labelledby="tab-softlaw" data-visible="false" tabindex="0">
+        <h2>Software a autorský zákon</h2>
+        <p class="muted">Práva uživatelů a autorská ochrana</p>
+
+        <p>Program je považován za autorské dílo a je chráněn zákonem. Neoprávněné kopírování a šíření programů je trestné. Výrobci programů používají různé technické a právní prostředky k ochraně svých práv (licence, aktivace, HW klíče apod.).</p>
+      </section>
+
+      <!-- Emulace -->
+      <section id="panel-emulace" class="panel" role="tabpanel" aria-labelledby="tab-emulace" data-visible="false" tabindex="0">
+        <h2>Emulace a virtualizace</h2>
+        <p class="muted">Emulátory, virtuální stroje</p>
+
+        <p>Emulátor umožňuje běh programů určených pro jinou platformu (např. DOSBox). Virtualizace umožňuje provoz virtuálních počítačů (VM), virtuálních komponent a izolovaných prostředí — běžné v testování, cloudových prostředích a serverech.</p>
+      </section>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="small" style="color:var(--muted);text-align:center;padding:14px 0 40px">
+      Autor: sbírka poznámek • Obrázky vloženy: <code>logo.png</code>, <code>OS.jpg</code>, <code>cloud.jpg</code>.
+    </div>
+  </footer>
+
+  <script>
+    // ---------- Tabs behaviour (accessible) ----------
+    (function(){
+      const tablist = document.querySelector('.tablist');
+      const tabs = Array.from(tablist.querySelectorAll('[role="tab"]'));
+      const panels = tabs.map(t => document.getElementById(t.getAttribute('aria-controls')));
+
+      function activateTab(tab, setFocus=true){
+        // deactivate all
+        tabs.forEach(t => t.setAttribute('aria-selected','false'));
+        panels.forEach(p => p.setAttribute('data-visible','false'));
+
+        // activate chosen
+        tab.setAttribute('aria-selected','true');
+        const panel = document.getElementById(tab.getAttribute('aria-controls'));
+        if(panel) panel.setAttribute('data-visible','true');
+
+        if(setFocus) tab.focus();
+        // update URL hash (optional)
+        try {
+          const id = panel ? panel.id : null;
+          if(id) history.replaceState(null, '', '#'+id);
+        } catch(e){}
+      }
+
+      // click
+      tabs.forEach((tab, i) => {
+        tab.addEventListener('click', (e) => {
+          activateTab(tab, false);
+        });
+
+        tab.addEventListener('keydown', (e) => {
+          const key = e.key;
+          let idx = tabs.indexOf(tab);
+          if(key === 'ArrowRight'){
+            idx = (idx + 1) % tabs.length;
+            tabs[idx].focus();
+            e.preventDefault();
+          } else if(key === 'ArrowLeft'){
+            idx = (idx - 1 + tabs.length) % tabs.length;
+            tabs[idx].focus();
+            e.preventDefault();
+          } else if(key === 'Home'){
+            tabs[0].focus();
+            e.preventDefault();
+          } else if(key === 'End'){
+            tabs[tabs.length-1].focus();
+            e.preventDefault();
+          } else if(key === 'Enter' || key === ' '){
+            activateTab(tab, false);
+            e.preventDefault();
+          }
+        });
+      });
+
+      // if the page loaded with hash, try to open that panel
+      const hash = window.location.hash.replace('#','');
+      if(hash){
+        const targetTab = tabs.find(t => t.getAttribute('aria-controls') === hash);
+        if(targetTab) activateTab(targetTab, false);
+      }
+
+      // make accordion in panels work
+      document.querySelectorAll('.acc-head').forEach(h => {
+        h.addEventListener('click', () => {
+          const body = h.nextElementSibling;
+          const open = body.classList.contains('open');
+          if(open){
+            body.classList.remove('open');
+            body.style.maxHeight = null;
+          } else {
+            body.classList.add('open');
+            body.style.maxHeight = body.scrollHeight + 'px';
+          }
+        });
+      });
+
+    })();
+
+    // ---------- Image fallback loader ----------
+    (function(){
+      // For each image with data-alts attribute (comma separated), try src then alternatives
+      function tryAlts(img){
+        const list = (img.dataset.alts || '').split(',').map(s => s.trim()).filter(Boolean);
+        if(!list.length) return;
+        // ensure current src is first if not present
+        const current = img.getAttribute('src');
+        if(!list.includes(current)) list.unshift(current);
+
+        // attach error handler to cycle through alternatives
+        let idx = 0;
+        img.addEventListener('error', function onerr(){
+          idx++;
+          if(idx >= list.length){
+            // all failed: remove handler
+            img.removeEventListener('error', onerr);
+            // leave alt text visible
+            return;
+          }
+          img.src = list[idx];
+        });
+      }
+
+      document.querySelectorAll('img[data-alts]').forEach(img => tryAlts(img));
+    })();
+
+    // ---------- small enhancement: open external links in new tab ----------
+    (function(){
+      document.querySelectorAll('a').forEach(a=>{
+        try{
+          if(a.hostname && a.hostname !== location.hostname){
+            a.classList.add('external');
+            a.setAttribute('target','_blank');
+            a.setAttribute('rel','noopener noreferrer');
+          }
+        }catch(e){}
+      });
+    })();
+  </script>
+</body>
+</html>
