@@ -1,0 +1,1 @@
+# str-nka-Programy-soubory-a-opera-n-syst-my.
